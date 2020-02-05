@@ -18,7 +18,7 @@ namespace BeeFlower
         SpriteFont font;
         int score = 0;
         //Skapa en randomerare som jag kan slumpa tal med
-        Random randomerare;
+        Random randomizer;
 
         public Game1()
         {
@@ -36,13 +36,14 @@ namespace BeeFlower
         {
             // TODO: Add your initialization logic here
 
-            beePos = new Vector2(300, 300);
+            randomizer = new Random(); //För att skapa slumptal
 
-            randomerare = new Random(); //För att skapa slumptal
+            //Placera ut biet
+            beePos = new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2);
 
             //Placera ut en första blomma
-            flowerPos.X = randomerare.Next(GraphicsDevice.Viewport.Width);
-            flowerPos.Y = randomerare.Next(GraphicsDevice.Viewport.Height);
+            flowerPos.X = randomizer.Next(GraphicsDevice.Viewport.Width);
+            flowerPos.Y = randomizer.Next(GraphicsDevice.Viewport.Height);
 
             //Placera ut fienden
             spiderPos = new Vector2(0, 0);
@@ -85,6 +86,7 @@ namespace BeeFlower
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            //Förflytta biet
             KeyboardState kb = Keyboard.GetState();
 
             if (kb.IsKeyDown(Keys.Left))
@@ -96,13 +98,15 @@ namespace BeeFlower
             if (kb.IsKeyDown(Keys.Down))
                 beePos.Y += 5;
 
+            //Se om biet når fram till mitten av blomman
             if (Math.Abs(beePos.X - flowerPos.X) < 10 && Math.Abs(beePos.Y - flowerPos.Y) < 10)
             {
                 score++;
-                flowerPos.X = randomerare.Next(GraphicsDevice.Viewport.Width);
-                flowerPos.Y = randomerare.Next(GraphicsDevice.Viewport.Height);
+                flowerPos.X = randomizer.Next(GraphicsDevice.Viewport.Width);
+                flowerPos.Y = randomizer.Next(GraphicsDevice.Viewport.Height);
             }
 
+            //Förflytta spindeln
             if (beePos.X > spiderPos.X) spiderPos.X++;
             if (beePos.X < spiderPos.X) spiderPos.X--;
             if (beePos.Y > spiderPos.Y) spiderPos.Y++;
