@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace BeeFlower
 {
@@ -11,6 +12,13 @@ namespace BeeFlower
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        Texture2D beeGfx, flowerGfx, spiderGfx;
+        Vector2 beePos, flowerPos, spiderPos;
+        SpriteFont font;
+        int score = 0;
+        //Skapa en randomerare som jag kan slumpa tal med
+        Random randomerare;
 
         public Game1()
         {
@@ -28,6 +36,17 @@ namespace BeeFlower
         {
             // TODO: Add your initialization logic here
 
+            beePos = new Vector2(300, 300);
+
+            randomerare = new Random(); //För att skapa slumptal
+
+            //Placera ut en första blomma
+            flowerPos.X = randomerare.Next(GraphicsDevice.Viewport.Width);
+            flowerPos.Y = randomerare.Next(GraphicsDevice.Viewport.Height);
+
+            //Placera ut fienden
+            spiderPos = new Vector2(0, 0);
+
             base.Initialize();
         }
 
@@ -41,6 +60,10 @@ namespace BeeFlower
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            beeGfx = Content.Load<Texture2D>("bee");
+            flowerGfx = Content.Load<Texture2D>("lotus_2080");
+            font = Content.Load<SpriteFont>("myFont");
+            spiderGfx = Content.Load<Texture2D>("spider");
         }
 
         /// <summary>
@@ -62,7 +85,28 @@ namespace BeeFlower
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            KeyboardState kb = Keyboard.GetState();
+
+            if (kb.IsKeyDown(Keys.Left))
+                beePos.X -= 5;
+            if (kb.IsKeyDown(Keys.Right))
+                beePos.X += 5;
+            if (kb.IsKeyDown(Keys.Up))
+                beePos.Y -= 5;
+            if (kb.IsKeyDown(Keys.Down))
+                beePos.Y += 5;
+
+            if (Math.Abs(beePos.X - flowerPos.X) < 10 && Math.Abs(beePos.Y - flowerPos.Y) < 10)
+            {
+                score++;
+                flowerPos.X = randomerare.Next(GraphicsDevice.Viewport.Width);
+                flowerPos.Y = randomerare.Next(GraphicsDevice.Viewport.Height);
+            }
+
+            if (beePos.X > spiderPos.X) spiderPos.X++;
+            if (beePos.X < spiderPos.X) spiderPos.X--;
+            if (beePos.Y > spiderPos.Y) spiderPos.Y++;
+            if (beePos.Y < spiderPos.Y) spiderPos.Y--;
 
             base.Update(gameTime);
         }
@@ -73,10 +117,17 @@ namespace BeeFlower
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Green);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
 
+            spriteBatch.Draw(flowerGfx, flowerPos - new Vector2(flowerGfx.Width/2, flowerGfx.Height/2), Color.White);
+            spriteBatch.Draw(beeGfx, beePos - new Vector2(beeGfx.Width / 2, beeGfx.Height / 2), Color.White);
+            spriteBatch.Draw(spiderGfx, spiderPos - new Vector2(128, 72), Color.White);
+            spriteBatch.DrawString(font, "Poäng: " + score, new Vector2(40, 40), Color.White);
+
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }
